@@ -1,62 +1,62 @@
-import bcrypt from 'bcrypt';
-import { v4 as uuid} from 'uuid';
-import { authSignUpSchema, authLoginSchema } from '../schemas/authSchema';
+// import bcrypt from 'bcrypt';
+// import { v4 as uuid} from 'uuid';
+// import { authSignUpSchema, authLoginSchema } from '../schemas/authSchema.js';
 
-import '../index';
-
-
-export async function loginUser(req, res){
-
-    try {
-        const user = req.body;
-
-        const validate = authLoginSchema.validate(user);
-
-        if(validate.error){
-            return res.status(422).send('Email e senha obrigatórios');
-        }
-
-        const checkUser = await db.collection('users').findone({email: user.email});
-
-        if(!checkUser){
-            return res.status(422).send('Email já cadastrado');
-        }
-
-        const decryptedPassword = bcrypt.compareSync(user.password, checkUser.password);
-
-        if(decryptedPassword){
-            const token = uuid();
-            await db.collection('sessions').insertOne({token, userId: checkUser._id});
-        }
-        return res.status(200).send('usuário logado');
-
-    } catch (error) {
-        res.status(500).send('Problema ao logar com usuário');
-    }
-}
+// import '../index.js';
 
 
-export async function signupUser(req, res){
-    try {
-        const newUser = req.body;
+// export async function loginUser(request, response){
 
-        const validate = authSignUpSchema.validate(newUser);
+//     try {
+//         const user = request.body;
 
-        if(validate.error){
-            return res.status(422).send('Todos os dados são obrigatórios');
-        }
+//         const validate = authLoginSchema.validate(user);
 
-        const encryptedPassword = bcrypt.hashSync(newUser.password, 10);
+//         if(validate.error){
+//             return response.status(422).send('Email e senha obrigatórios');
+//         }
 
-        await db.collection('users').insertOne({
-            name: newUser.name,
-            email: newUser.email,
-            password: encryptedPassword
-        });
+//         const checkUser = await db.collection('users').findOne({email: user.email});
 
-        res.status(200).send('Cadastro realizado');
+//         if(!checkUser){
+//             return response.status(422).send('Email já cadastrado');
+//         }
 
-    } catch (error) {
-        return res.status(500).send('Erro ao cadastrar usuário');
-    }
-}
+//         const decryptedPassword = bcrypt.compareSync(user.password, checkUser.password);
+
+//         if(decryptedPassword){
+//             const token = uuid();
+//             await db.collection('sessions').insertOne({token, userId: checkUser._id});
+//         }
+//         return response.status(200).send('usuário logado');
+
+//     } catch (error) {
+//         response.status(500).send('Problema ao logar com usuário');
+//     }
+// }
+
+
+// export async function signupUser(request, response){
+//     try {
+//         const newUser = request.body;
+
+//         const validate = authSignUpSchema.validate(newUser);
+
+//         if(validate.error){
+//             return response.status(422).send('Todos os dados são obrigatórios');
+//         }
+
+//         const encryptedPassword = bcrypt.hashSync(newUser.password, 10);
+
+//         await db.collection('users').insertOne({
+//             name: newUser.name,
+//             email: newUser.email,
+//             password: encryptedPassword
+//         });
+
+//         response.status(200).send('Cadastro realizado');
+
+//     } catch (error) {
+//         return response.status(500).send('Erro ao cadastrar usuário');
+//     }
+// }

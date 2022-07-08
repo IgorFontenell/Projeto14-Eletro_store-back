@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import joi from "joi";
 import { MongoClient } from "mongodb";
+import bcrypt from 'bcrypt';
+import { v4 as uuid} from 'uuid';
 
 dotenv.config();
 
@@ -52,7 +54,72 @@ server.post("/stock", async (request, response) => {
         class: item.class
     });
     response.status(201).send("Item cadastrado com sucesso!");
-
 });
+
+server.post('/login', async (request, response) => {
+    const user = request.body;
+
+    const authLoginSchema = joi.object({
+        email: joi.string().email().required(),
+        password: joi.string().required()
+    });
+    const validate = authLoginSchema.validate(user);
+
+    if(validate.error){
+        return response.status(422).send('Email e senha obrigatórios');
+    }
+    const checkUser = await db.collection('users').findOne({email: user.email});
+
+    if(!checkUser){
+        return response.status(422).send('Email já cadastrado');
+    }
+
+    try {
+        const decryptedPassword = bcrypt.compareSync(user.password, checkUser.password);
+
+        if(decryptedPassword){
+            const token = uuid();
+            await db.collection('sessions').insertOne({token, userId: checkUser._id});
+        }
+        return response.status(200).send('usuário logado');
+
+    } catch (error) {
+        console.error('Houve um problema ao logar o usuário');
+        response.status(500).send('Problema ao logar com usuário');
+    }
+});
+
+server.post('/sign-up', async (request, response) => {
+    const newUser = request.body;
+
+    const authSignUpSchema = joi.object({
+        name: joi.string().required(),
+        email: joi.string().email().required(),
+        password: joi.string().required(),
+        confirmPassword: joi.ref('password')
+    });
+
+    const validate = authSignUpSchema.validate(newUser);
+
+    if(validate.error){
+        return response.status(422).send('Todos os dados são obrigatórios');
+    }
+
+    try {
+        const encryptedPassword = bcrypt.hashSync(newUser.password, 10);
+        await db.collection('users').insertOne({
+            name: newUser.name,
+            email: newUser.email,
+            password: encryptedPassword
+        });
+
+        response.status(200).send('Cadastro realizado');
+
+    } catch (error) {
+        return response.status(500).send('Erro ao cadastrar usuário');
+    }
+});
+
+
 const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => console.log("Servidor rodando..."));
