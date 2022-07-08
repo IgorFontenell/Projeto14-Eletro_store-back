@@ -20,7 +20,7 @@ function mongoConection() {
 }
 mongoConection();
 //Necessário uma verificação se é o usuário mesmo ainda a ser feita!
-server.get("/main", async (request, response) => {
+server.get("/items", async (request, response) => {
 
 
 
@@ -37,7 +37,7 @@ server.post("/stock", async (request, response) => {
         price: joi.number().required(),
         description: joi.string().required(),
         class: joi.string().required(),
-        img: joi.string().uri().required()
+        image: joi.string().uri().required()
     });
 
     const validation = itemSchema.validate(item);
@@ -49,7 +49,8 @@ server.post("/stock", async (request, response) => {
         name: item.name,
         price: item.price,
         description: item.description,
-        class: item.class
+        class: item.class,
+        image: item.image
     });
     response.status(201).send("Item cadastrado com sucesso!");
 
