@@ -1,4 +1,4 @@
-import express from "express";
+import express, { response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import joi from "joi";
@@ -121,6 +121,44 @@ server.post('/sign-up', async (request, response) => {
     }
 });
 
+server.post('/categories-products', async (request, response) => {
+    const product = request.body;
+
+    const authLoginSchema = joi.object({
+        name: joi.string().required(),
+        category: joi.string().required(),
+        image: joi.string().required(),
+        price: joi.number().required(),
+        brand: joi.string().required(),
+    });
+    const validate = authLoginSchema.validate(product);
+
+    if(validate.error){
+        return response.status(422).send('Dados dos produtos obrigatórios');
+    }
+    try {
+        await db.collection('products').insertOne({
+            name: product.name,
+            category: product.category,
+            image: product.image,
+            price: product.price,
+            brand: product.brand,
+        }).toArray();
+        response.status(200).send('produtos inseridos');
+    } catch (error) {
+        return response.status(500).send('Erro ao inserir produtos');
+    }
+});
+
+server.get('/categories-products', async (request, response) => {
+    try {
+        const products = await db.collection('products').find().toArray();
+        response.send(products);
+      } catch (error) {
+        console.error({ error });
+        response.status(500).send('Não foi possível pegar os produtos');
+      }
+});
 
 const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => console.log("Servidor rodando..."));
