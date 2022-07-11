@@ -1,8 +1,8 @@
-import express, { response } from "express";
+import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import joi from "joi";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import bcrypt from 'bcrypt';
 import { v4 as uuid} from 'uuid';
 
@@ -150,15 +150,42 @@ server.post('/categories-products', async (request, response) => {
     }
 });
 
-server.get('/categories-products', async (request, response) => {
+server.get('/categories-products-Celulares', async (request, response) => {
     try {
-        const products = await db.collection('products').find().toArray();
+        const products = await db.collection('products').find({
+            category: "Celulares"
+        }).toArray();
         response.send(products);
       } catch (error) {
         console.error({ error });
         response.status(500).send('Não foi possível pegar os produtos');
       }
 });
+
+server.get('/categories-products-Laptops', async (request, response) => {
+    try {
+        const products = await db.collection('products').find({
+            category: "Laptops"
+        }).toArray();
+        response.send(products);
+      } catch (error) {
+        console.error({ error });
+        response.status(500).send('Não foi possível pegar os produtos');
+      }
+});
+
+server.post('/xablau', async (request, response) => {
+    const {productId} = request.body;
+    console.log(productId)
+    try {
+        const product = await db.collection('products').findOne({ _id: ObjectId(productId) });
+        response.status(200).send(product);
+        console.log(product)
+    } catch (error) {
+        return response.status(500).send('Erro ao pegar produtos');
+    }
+});
+
 
 const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => console.log("Servidor rodando..."));
