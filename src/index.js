@@ -121,6 +121,75 @@ server.post('/sign-up', async (request, response) => {
     }
 });
 
+server.post("/buy", async (request, response) => {
+    let item = request.body;
+    const buySchema = joi.object({
+        name: joi.string().required(),
+        image: joi.string().uri().required(),
+        price: joi.string().required(),
+        quantity: joi.string().required(),
+    });
+    let validation = buySchema.validate(item);
+
+    if (!validation) {
+        response.send(400);
+        return;
+    };
+    try {
+        await db.collection("buying").insertOne({
+            name: item.name,
+            image: item.image,
+            price: item.price,
+            quantity: item.quantity
+        });
+        response.status(201).send("Item colocado no carrinho com sucesso");
+    } catch {
+        response.status(400).send("Algo deu errado na hora de colocar no carrinho");
+    } 
+});
+
+server.get("/buy", async (request, response) => {
+    let items = await db.collection("buying").find({}).toArray();
+    response.send(items);
+});
+
+server.get("/buyingvalue", async(request, response) => {
+    let price = 0;
+    let items = await db.collection("buying").find({}).toArray();
+    items.map(object => {
+        let newPrice = object.price.replace(".", "");
+        newPrice = newPrice.replace(",", ".");
+        price = price + object.quantity*(Number(newPrice));
+    });
+    response.json({price});
+});
+
+server.put("/update", async (request, response) => {
+    let item = request.body;
+    console.log(item);
+    try {
+		
+		const itemDB = await db.collection("buying").findOne({
+            name: item.name,
+            image: item.image,
+            price: item.price,
+            quantity: item.quantity
+        });
+		if(!itemDB) {
+            response.sendStatus(404);
+            return;
+        }
+        await db.collection("buying").updateOne({ _id: itemDB._id}, { $set: { quantity: item.newQuantity }});
+        
+		response.sendStatus(200);
+		
+	 } catch (error) {
+	  res.status(500).send(error)
+		
+	 }
+    
+})
+
 
 const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => console.log("Servidor rodando..."));
