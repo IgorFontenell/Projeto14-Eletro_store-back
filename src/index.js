@@ -147,17 +147,24 @@ server.post('/categories-products', async (request, response) => {
 server.get('/products', async (request, response) => {
     const {authorization} = request.headers;
 
-    const token = authorization?.replace('Baerer ', '');
+    const token = authorization?.replace('Bearer ', '');
 
-    const sessao = await db.collection('session').findOne({token});
+    const sessao = await db.collection('sessions').findOne({token});
     if(!sessao){
         return response.sendStatus(401);
     }
-    response.send(authorization);
+    response.send({token});
 })
 
 server.get('/categories-products-Celulares', async (request, response) => {
-   
+    const {authorization} = request.headers;
+
+    const token = authorization?.replace('Bearer ', '');
+
+    const sessao = await db.collection('sessions').findOne({token});
+    if(!sessao){
+        return response.sendStatus(401);
+    }
     try {
         const products = await db.collection('products').find({
             category: "Celulares",
@@ -170,6 +177,14 @@ server.get('/categories-products-Celulares', async (request, response) => {
 });
 
 server.get('/categories-products-Laptops', async (request, response) => {
+    const {authorization} = request.headers;
+
+    const token = authorization?.replace('Bearer ', '');
+
+    const sessao = await db.collection('sessions').findOne({token});
+    if(!sessao){
+        return response.sendStatus(401);
+    }
     try {
         const products = await db.collection('products').find({
             category: "Laptops"
@@ -182,12 +197,19 @@ server.get('/categories-products-Laptops', async (request, response) => {
 });
 
 server.post('/choosenProduct', async (request, response) => {
+    const {authorization} = request.headers;
 
+    const token = authorization?.replace('Bearer ', '');
+
+    const sessao = await db.collection('sessions').findOne({token});
+    if(!sessao){
+        return response.sendStatus(401);
+    }
     const {productId} = request.body;
     
     try {
         const product = await db.collection('products').findOne({ _id: ObjectId(productId) });
-        response.status(200).send(product);
+        response.status(200).send({product});
         
     } catch (error) {
         return response.status(500).send('Erro ao pegar produtos');
