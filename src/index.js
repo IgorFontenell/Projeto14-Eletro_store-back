@@ -144,17 +144,6 @@ server.post('/categories-products', async (request, response) => {
     }
 });
 
-server.get('/products', async (request, response) => {
-    const {authorization} = request.headers;
-
-    const token = authorization?.replace('Bearer ', '');
-
-    const sessao = await db.collection('sessions').findOne({token});
-    if(!sessao){
-        return response.sendStatus(401);
-    }
-    response.send({token});
-})
 
 server.get('/categories-products-Celulares', async (request, response) => {
 
@@ -245,16 +234,7 @@ server.get('/categories-products-SmartWatch', async (request, response) => {
 });
 
 server.post('/choosenProduct', async (request, response) => {
-    const {authorization} = request.headers;
-
-    const token = authorization?.replace('Bearer ', '');
-
-    const sessao = await db.collection('sessions').findOne({token});
-    if(!sessao){
-        return response.sendStatus(401);
-    }
     const {productId} = request.body;
-    
     try {
         const product = await db.collection('products').findOne({ _id: ObjectId(productId) });
         response.status(200).send({product});
