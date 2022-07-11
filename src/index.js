@@ -188,6 +188,16 @@ server.put("/update", async (request, response) => {
 		
 	 }
     
+});
+
+server.delete("/buy", async (request, response) => {
+    try {
+        const itemDB = await db.collection("buying").deleteMany({});
+        response.status(202).send("Itens deletados com sucesso!");
+    } catch {
+        response.status(405).send("Itens deletados com sucesso!");
+    }
+    
 })
 
 
