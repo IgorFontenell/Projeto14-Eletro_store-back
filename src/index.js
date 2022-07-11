@@ -175,17 +175,77 @@ server.get('/categories-products-Celulares', async (request, response) => {
 });
 
 server.get('/categories-products-Laptops', async (request, response) => {
-    const {authorization} = request.headers;
+    
 
-    const token = authorization?.replace('Bearer ', '');
+    
 
-    const sessao = await db.collection('sessions').findOne({token});
-    if(!sessao){
-        return response.sendStatus(401);
-    }
+    
+    
     try {
         const products = await db.collection('products').find({
-            category: "Laptops"
+            category: "Laptops",
+        }).toArray();
+        response.send(products);
+      } catch (error) {
+        console.error({ error });
+        response.status(500).send('Não foi possível pegar os produtos');
+      }
+});
+
+server.get('/categories-products-Fones', async (request, response) => {
+    
+    try {
+        const products = await db.collection('products').find({
+            category: "Fones"
+        }).toArray();
+        response.send(products);
+      } catch (error) {
+        console.error({ error });
+        response.status(500).send('Não foi possível pegar os produtos');
+      }
+});
+
+server.get('/categories-products-Impressoras', async (request, response) => {
+    
+    try {
+        const products = await db.collection('products').find({
+            category: "Impressoras"
+        }).toArray();
+        response.send(products);
+      } catch (error) {
+        console.error({ error });
+        response.status(500).send('Não foi possível pegar os produtos');
+      }
+});
+server.get('/categories-products-Telescopio', async (request, response) => {
+    
+    try {
+        const products = await db.collection('products').find({
+            category: "Telescopio"
+        }).toArray();
+        response.send(products);
+      } catch (error) {
+        console.error({ error });
+        response.status(500).send('Não foi possível pegar os produtos');
+      }
+});
+server.get('/categories-products-Jogos', async (request, response) => {
+    
+    try {
+        const products = await db.collection('products').find({
+            category: "Jogos"
+        }).toArray();
+        response.send(products);
+      } catch (error) {
+        console.error({ error });
+        response.status(500).send('Não foi possível pegar os produtos');
+      }
+});
+server.get('/categories-products-SmartWatch', async (request, response) => {
+    
+    try {
+        const products = await db.collection('products').find({
+            category: "SmartWatch"
         }).toArray();
         response.send(products);
       } catch (error) {
