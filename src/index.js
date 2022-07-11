@@ -215,6 +215,8 @@ server.post('/choosenProduct', async (request, response) => {
         return response.status(500).send('Erro ao pegar produtos');
     }
 });
+
+
 server.post("/buy", async (request, response) => {
     let item = request.body;
     const buySchema = joi.object({
