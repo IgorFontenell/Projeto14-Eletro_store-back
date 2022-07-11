@@ -1,4 +1,4 @@
-import express from "express";
+import express, { request, response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import joi from "joi";
@@ -59,31 +59,25 @@ server.post("/stock", async (request, response) => {
 
 server.post('/login', async (request, response) => {
     const user = request.body;
-
     const authLoginSchema = joi.object({
         email: joi.string().email().required(),
         password: joi.string().required()
     });
     const validate = authLoginSchema.validate(user);
-
     if(validate.error){
         return response.status(422).send('Email e senha obrigatórios');
     }
     const checkUser = await db.collection('users').findOne({email: user.email});
-
     if(!checkUser){
         return response.status(422).send('Email já cadastrado');
     }
-
     try {
         const decryptedPassword = bcrypt.compareSync(user.password, checkUser.password);
-
         if(decryptedPassword){
             const token = uuid();
             await db.collection('sessions').insertOne({token, userId: checkUser._id});
         }
         return response.status(200).send('usuário logado');
-
     } catch (error) {
         console.error('Houve um problema ao logar o usuário');
         response.status(500).send('Problema ao logar com usuário');
@@ -150,10 +144,23 @@ server.post('/categories-products', async (request, response) => {
     }
 });
 
+server.get('/products', async (request, response) => {
+    const {authorization} = request.headers;
+
+    const token = authorization?.replace('Baerer ', '');
+
+    const sessao = await db.collection('session').findOne({token});
+    if(!sessao){
+        return response.sendStatus(401);
+    }
+    response.send(authorization);
+})
+
 server.get('/categories-products-Celulares', async (request, response) => {
+   
     try {
         const products = await db.collection('products').find({
-            category: "Celulares"
+            category: "Celulares",
         }).toArray();
         response.send(products);
       } catch (error) {
@@ -174,13 +181,14 @@ server.get('/categories-products-Laptops', async (request, response) => {
       }
 });
 
-server.post('/xablau', async (request, response) => {
+server.post('/choosenProduct', async (request, response) => {
+
     const {productId} = request.body;
-    console.log(productId)
+    
     try {
         const product = await db.collection('products').findOne({ _id: ObjectId(productId) });
         response.status(200).send(product);
-        console.log(product)
+        
     } catch (error) {
         return response.status(500).send('Erro ao pegar produtos');
     }
