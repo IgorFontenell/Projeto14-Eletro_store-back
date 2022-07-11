@@ -157,14 +157,12 @@ server.get('/products', async (request, response) => {
 })
 
 server.get('/categories-products-Celulares', async (request, response) => {
-    const {authorization} = request.headers;
+    
 
-    const token = authorization?.replace('Bearer ', '');
+    
 
-    const sessao = await db.collection('sessions').findOne({token});
-    if(!sessao){
-        return response.sendStatus(401);
-    }
+    
+    
     try {
         const products = await db.collection('products').find({
             category: "Celulares",
