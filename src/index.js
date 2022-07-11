@@ -157,14 +157,14 @@ server.get('/products', async (request, response) => {
 })
 
 server.get('/categories-products-Celulares', async (request, response) => {
-    // const {authorization} = request.headers;
+    const {authorization} = request.headers;
 
-    // const token = authorization?.replace('Bearer ', '');
-   
-    // const sessao = await db.collection('sessions').findOne({token});
-    // if(!sessao){
-    //     return response.sendStatus(401);
-    // }
+    const token = authorization?.replace('Bearer ', '');
+
+    const sessao = await db.collection('sessions').findOne({token});
+    if(!sessao){
+        return response.sendStatus(401);
+    }
     try {
         const products = await db.collection('products').find({
             category: "Celulares",
@@ -177,14 +177,15 @@ server.get('/categories-products-Celulares', async (request, response) => {
 });
 
 server.get('/categories-products-Laptops', async (request, response) => {
-    // const {authorization} = request.headers;
 
-    // const token = authorization?.replace('Bearer ', '');
+    const {authorization} = request.headers;
 
-    // const sessao = await db.collection('sessions').findOne({token});
-    // if(!sessao){
-    //     return response.sendStatus(401);
-    // }
+    const token = authorization?.replace('Bearer ', '');
+
+    const sessao = await db.collection('sessions').findOne({token});
+    if(!sessao){
+        return response.sendStatus(401);
+    }
     try {
         const products = await db.collection('products').find({
             category: "Laptops"
@@ -197,14 +198,14 @@ server.get('/categories-products-Laptops', async (request, response) => {
 });
 
 server.post('/choosenProduct', async (request, response) => {
-    // const {authorization} = request.headers;
+    const {authorization} = request.headers;
 
-    // const token = authorization?.replace('Bearer ', '');
+    const token = authorization?.replace('Bearer ', '');
 
-    // const sessao = await db.collection('sessions').findOne({token});
-    // if(!sessao){
-    //     return response.sendStatus(401);
-    // }
+    const sessao = await db.collection('sessions').findOne({token});
+    if(!sessao){
+        return response.sendStatus(401);
+    }
     const {productId} = request.body;
     
     try {
@@ -283,6 +284,16 @@ server.put("/update", async (request, response) => {
 	  res.status(500).send(error)
 		
 	 }
+    
+});
+
+server.delete("/buy", async (request, response) => {
+    try {
+        const itemDB = await db.collection("buying").deleteMany({});
+        response.status(202).send("Itens deletados com sucesso!");
+    } catch {
+        response.status(405).send("Itens deletados com sucesso!");
+    }
     
 })
 
